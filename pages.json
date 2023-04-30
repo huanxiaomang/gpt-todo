@@ -5,7 +5,16 @@
 		}, {
 			"path": "pages/login/login"
 		}
-	],
+	    ,{
+            "path" : "pages/register/register",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationStyle": "custom"
 	},

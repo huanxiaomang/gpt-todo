@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="text-area">
-			<text class="title">{{title}}</text>
+
 		</view>
 	</view>
 </template>
@@ -10,7 +10,7 @@
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+
 			}
 		},
 		onLoad() {
@@ -18,6 +18,15 @@
 		},
 		methods: {
 
+		},
+		mounted() {
+			// 判断本地是否存储了token，没有跳转登录页
+			const token = uni.getStorageSync('token');
+			if (!token) {
+				uni.redirectTo({
+					url: '../login/login',
+				});
+			}
 		}
 	}
 </script>

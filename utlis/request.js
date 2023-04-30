@@ -1,19 +1,19 @@
 import axios from "axios";
-
-// import {
-// 	UniAdapter
-// } from "../js_sdk/zxiaofoo-uniapp-axios-adapter/lib/index.esm.js";
+import {
+	UniAdapter
+} from "uniapp-axios-adapter";
 const instance = axios.create({
-	baseURL: "http://1.117.61.181:5173/",
+	baseURL: "http://1.117.61.181:5173",
 	timeout: 10000,
-	// adapter: UniAdapter,
+	adapter: UniAdapter, // 指定适配器
 });
 instance.interceptors.request.use((config) => {
-	// 如果本地又token就在头部携带
+	// 如果本地有token就在头部携带
 	// 获取用户本地存储，判断是否有token
-	// if (profile.token) {
-	// 	config.headers.Authorization = `${profile.token}`
-	// }
+	const token = uni.getStorageSync('token');
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`
+	}
 	return config;
 });
 

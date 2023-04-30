@@ -1,10 +1,10 @@
 <template>
-	<view class="login">
+	<view class="register">
 		<view class="title">GPT-TODO</view>
 		<view class="form-aside">
 			<uni-forms :model="formData" label-position="top" :rules="formRule" validate-trigger="bind">
 				<uni-forms-item label="邮箱" name="username">
-					<uni-easyinput type="text" v-model.trim="formData.username" placeholder="请输入邮箱" />
+					<uni-easyinput type="text" v-model.trim="formData.username" placeholder="请输入未注册邮箱" />
 
 				</uni-forms-item>
 				<uni-forms-item label="密码" name="password">
@@ -14,8 +14,8 @@
 				</uni-forms-item>
 			</uni-forms>
 			<view class="event">
-				<text @click="toRegister">现在注册！</text>
-				<button class="login-button" @click="submitForm">登录</button>
+				<text @click="toLogin">已有账号？去登录</text>
+				<button class="register-button" @click="submitForm">注册</button>
 			</view>
 
 		</view>
@@ -26,9 +26,6 @@
 		<uni-popup ref="popup1" type="message">
 			<uni-popup-message type="success" :message="msg" :duration="2000"></uni-popup-message>
 		</uni-popup>
-		<uni-popup ref="popup2" type="message">
-			<uni-popup-message type="error" :message="msg" :duration="2000"></uni-popup-message>
-		</uni-popup>
 		<uni-popup ref="popup3" type="message">
 			<uni-popup-message type="error" message="用户名或密码不能为空" :duration="2000"></uni-popup-message>
 		</uni-popup>
@@ -38,8 +35,8 @@
 <script>
 	import w_md5 from "../../js_sdk/zww-md5/w_md5.js"
 	import {
-		userAccountLogin
-	} from '../../apis/login';
+		userAccountRegister
+	} from '../../apis/register.js';
 	export default {
 		data() {
 			return {
@@ -77,57 +74,46 @@
 					this.$refs.popup3.open()
 					return
 				}
-				userAccountLogin({
+				userAccountRegister({
 					username,
 					password
 				}).then(res => {
-					// res.code为0:用户名错误  1:登录成功  2:密码错误，登录失败！
+					// res.code为0:注册失败，帐号已存在  1:注册成功  
 					this.msg = res.msg
 					if (res.code == 0) {
 						this.$refs.popup0.open()
 					} else if (res.code == 1) {
-						// 登录成功后，本地存储token，跳转首页
+						// 注册成功后，本地存储token，跳转首页
 						uni.setStorageSync('token', res.token);
 						uni.redirectTo({
 							url: '../index/index',
 						});
 						this.$refs.popup1.open()
-					} else if (res.code == 2) {
-						this.$refs.popup2.open()
 					}
 				}).catch(err => {
 					console.log(err);
 				})
 			},
-			toRegister() {
-				uni.navigateTo({
-					url: '../register/register',
-					animationType: 'pop-in',
+			toLogin() {
+				uni.navigateBack({
+					url: '../login/login',
+					animationType: 'pop-out',
 					animationDuration: 200
 				});
 			}
-		},
-		mounted() {
-			// 判断本地是否存储了token，有的话直接跳转到首页
-			const token = uni.getStorageSync('token');
-			if (token) {
-				uni.redirectTo({
-					url: '../index/index',
-				});
-			}
+
 		}
 	}
 </script>
 
 <style lang="scss">
-	.login {
+	.register {
 		height: 100vh;
 		width: 100vw;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
-		z-index: -1;
 
 		.title {
 			margin-top: -400rpx;
@@ -136,10 +122,11 @@
 		}
 
 		.form-aside {
+
 			height: 500rpx;
 			width: 90vw;
 
-			.login-button {
+			.register-button {
 				width: 480rpx;
 
 			}
