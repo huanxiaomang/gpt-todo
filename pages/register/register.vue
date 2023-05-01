@@ -29,6 +29,9 @@
 		<uni-popup ref="popup3" type="message">
 			<uni-popup-message type="error" message="用户名或密码不能为空" :duration="2000"></uni-popup-message>
 		</uni-popup>
+		<uni-popup ref="popup4" type="message">
+			<uni-popup-message type="error" message="当前网络未连接,请开启网络" :duration="2000"></uni-popup-message>
+		</uni-popup>
 	</view>
 </template>
 
@@ -70,8 +73,8 @@
 				// 对密码进行加密
 				let username = this.formData.username
 				let password = w_md5.hex_md5_32(this.formData.password)
-				if (username == '') {
-					this.$refs.popup3.open()
+				if (username == '' || password == '') {
+					this.$refs.popup3.open('center')
 					return
 				}
 				userAccountRegister({
@@ -79,16 +82,21 @@
 					password
 				}).then(res => {
 					// res.code为0:注册失败，帐号已存在  1:注册成功  
+					if (!res) {
+						this.$refs.popup4.open('center')
+					}
 					this.msg = res.msg
 					if (res.code == 0) {
-						this.$refs.popup0.open()
+						this.$refs.popup0.open('center')
 					} else if (res.code == 1) {
+						this.$refs.popup1.open('center')
 						// 注册成功后，本地存储token，跳转首页
 						uni.setStorageSync('token', res.token);
+						uni.setStorageSync('username', res.username);
+						uni.setStorageSync('count', res.count);
 						uni.redirectTo({
 							url: '../index/index',
 						});
-						this.$refs.popup1.open()
 					}
 				}).catch(err => {
 					console.log(err);
@@ -102,6 +110,15 @@
 				});
 			}
 
+		},
+		mounted() {
+			// 判断本地是否存储了token，有的话直接跳转到首页
+			const token = uni.getStorageSync('token');
+			if (token) {
+				uni.redirectTo({
+					url: '../index/index',
+				});
+			}
 		}
 	}
 </script>
@@ -114,6 +131,7 @@
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
+		margin-top: 30rpx;
 
 		.title {
 			margin-top: -400rpx;

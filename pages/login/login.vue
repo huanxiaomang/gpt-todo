@@ -32,6 +32,9 @@
 		<uni-popup ref="popup3" type="message">
 			<uni-popup-message type="error" message="用户名或密码不能为空" :duration="2000"></uni-popup-message>
 		</uni-popup>
+		<uni-popup ref="popup4" type="message">
+			<uni-popup-message type="error" message="当前网络未连接,请开启网络" :duration="2000"></uni-popup-message>
+		</uni-popup>
 	</view>
 </template>
 
@@ -73,8 +76,8 @@
 				// 对密码进行加密
 				let username = this.formData.username
 				let password = w_md5.hex_md5_32(this.formData.password)
-				if (username == '') {
-					this.$refs.popup3.open()
+				if (username == '' || password == '') {
+					this.$refs.popup3.open('center')
 					return
 				}
 				userAccountLogin({
@@ -82,18 +85,25 @@
 					password
 				}).then(res => {
 					// res.code为0:用户名错误  1:登录成功  2:密码错误，登录失败！
+
+					if (res == undefined) {
+						this.$refs.popup4.open('center')
+						return
+					}
 					this.msg = res.msg
 					if (res.code == 0) {
-						this.$refs.popup0.open()
+						this.$refs.popup0.open('center')
 					} else if (res.code == 1) {
 						// 登录成功后，本地存储token，跳转首页
+						this.$refs.popup1.open('center')
 						uni.setStorageSync('token', res.token);
+						uni.setStorageSync('username', res.username);
+						uni.setStorageSync('count', res.count);
 						uni.redirectTo({
 							url: '../index/index',
 						});
-						this.$refs.popup1.open()
 					} else if (res.code == 2) {
-						this.$refs.popup2.open()
+						this.$refs.popup2.open('center')
 					}
 				}).catch(err => {
 					console.log(err);
@@ -127,7 +137,7 @@
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
-		z-index: -1;
+		margin-top: 30rpx;
 
 		.title {
 			margin-top: -400rpx;
