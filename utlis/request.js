@@ -22,7 +22,12 @@ instance.interceptors.response.use((response) => {
 	return response.data
 }, (error) => {
 	// token过期处理，让用户重新登录
-
+	if (error.response.status == 401) {
+		uni.setStorageSync('token', '');
+		uni.redirectTo({
+			url: '/pages/login/login'
+		})
+	}
 });
 // 请求工具函数
 export default (url, method = 'get', submitData) => {
